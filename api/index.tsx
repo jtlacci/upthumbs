@@ -9,8 +9,7 @@ import { downthumb } from "../lib/downthumb.js";
 import { Box, Heading, Text, VStack, vars } from "../lib/ui.js";
 import redis from "../lib/redis.js";
 
-const NEYNAR_API_KEY =
-  process.env.NEYNAR_API_KEY ?? "8f66f14f-bb31-4144-b364-3a91dffa4d40";
+const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY ?? "";
 const neynarClient = new NeynarAPIClient(NEYNAR_API_KEY);
 
 const ADD_URL =
