@@ -9,7 +9,8 @@ import { upthumb } from "../lib/upthumb.js";
 import { Box, Heading, Text, VStack, vars } from "../lib/ui.js";
 import redis from "../lib/redis.js";
 
-const NEYNAR_API_KEY = process.env.NEYNAR_API_KEY ?? "";
+const NEYNAR_API_KEY =
+  process.env.NEYNAR_API_KEY ?? "8f66f14f-bb31-4144-b364-3a91dffa4d40";
 const neynarClient = new NeynarAPIClient(NEYNAR_API_KEY);
 
 const ADD_URL =
@@ -75,7 +76,7 @@ app.frame("/", (c) => {
       >
         <VStack gap="4">
           <Heading color="fcPurple" align="center" size="64">
-            Upthumbs 👍
+            Downthumbs 👎
           </Heading>
         </VStack>
       </Box>
@@ -86,7 +87,7 @@ app.frame("/", (c) => {
         🏆 Leaderboard
       </Button>,
       <Button value="start" action="/upthumbs">
-        👍 My Upthumbs
+        👎 My Downthumbs
       </Button>,
     ],
   });
@@ -136,7 +137,7 @@ app.frame("/upthumbs", async (c) => {
   const fid = c.var.interactor?.fid ?? 0;
   let upthumbs = "0";
   try {
-    upthumbs = await redis.zscore("upthumbs", fid) ?? "0";
+    upthumbs = (await redis.zscore("upthumbs", fid)) ?? "0";
   } catch (e) {}
 
   return c.res({
@@ -150,7 +151,7 @@ app.frame("/upthumbs", async (c) => {
       >
         <VStack gap="4">
           <Heading color="fcPurple" align="center" size="48">
-            Your Upthumbs:
+            Your Downthumbs:
           </Heading>
           <Text align="center" size="32">
             {upthumbs}
