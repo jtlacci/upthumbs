@@ -5,7 +5,7 @@ import { neynar as neynarHub } from "frog/hubs";
 import { neynar } from "frog/middlewares";
 import { handle } from "frog/vercel";
 import { CastParamType, NeynarAPIClient } from "@neynar/nodejs-sdk";
-import { upthumb } from "../lib/upthumb.js";
+import { downthumb } from "../lib/downthumb.js";
 import { Box, Heading, Text, VStack, vars } from "../lib/ui.js";
 import redis from "../lib/redis.js";
 
@@ -14,7 +14,7 @@ const NEYNAR_API_KEY =
 const neynarClient = new NeynarAPIClient(NEYNAR_API_KEY);
 
 const ADD_URL =
-  "https://warpcast.com/~/add-cast-action?name=Upthumb&icon=thumbsup&actionType=post&postUrl=https://upthumbs.app/api/upthumb";
+  "https://warpcast.com/~/add-cast-action?name=Downthumbs&icon=thumbsdown&actionType=post&postUrl=https://downthumbs.vercel.app/api/downthumb";
 
 export const app = new Frog({
   assetsPath: "/",
@@ -30,7 +30,7 @@ export const app = new Frog({
 );
 
 // Cast action handler
-app.hono.post("/upthumb", async (c) => {
+app.hono.post("/downthumb", async (c) => {
   const {
     trustedData: { messageBytes },
   } = await c.req.json();
@@ -50,11 +50,11 @@ app.hono.post("/upthumb", async (c) => {
       return c.json({ message: "Nice try." }, 400);
     }
 
-    await upthumb(fid, username);
+    await downthumb(fid, username);
 
-    let message = `You upthumbed ${username}`;
+    let message = `You downthumbed ${username}`;
     if (message.length > 30) {
-      message = "Upthumbed!";
+      message = "Downthumbed!";
     }
 
     return c.json({ message });
@@ -86,7 +86,7 @@ app.frame("/", (c) => {
       <Button value="leaderboard" action="/leaderboard">
         🏆 Leaderboard
       </Button>,
-      <Button value="start" action="/upthumbs">
+      <Button value="start" action="/downthumbs">
         👎 My Downthumbs
       </Button>,
     ],
@@ -94,7 +94,7 @@ app.frame("/", (c) => {
 });
 
 app.frame("/leaderboard", async (c) => {
-  const leaders = await redis.zrevrange("upthumbs", 0, 3, "WITHSCORES");
+  const leaders = await redis.zrevrange("downthumbs", 0, 3, "WITHSCORES");
   const [firstFid, firstScore, secondFid, secondScore, thirdFid, thirdScore] =
     leaders;
 
@@ -133,11 +133,11 @@ app.frame("/leaderboard", async (c) => {
   });
 });
 
-app.frame("/upthumbs", async (c) => {
+app.frame("/downthumbs", async (c) => {
   const fid = c.var.interactor?.fid ?? 0;
-  let upthumbs = "0";
+  let downthumbs = "0";
   try {
-    upthumbs = (await redis.zscore("upthumbs", fid)) ?? "0";
+    downthumbs = (await redis.zscore("downthumbs", fid)) ?? "0";
   } catch (e) {}
 
   return c.res({
@@ -154,7 +154,7 @@ app.frame("/upthumbs", async (c) => {
             Your Downthumbs:
           </Heading>
           <Text align="center" size="32">
-            {upthumbs}
+            {downthumbs}
           </Text>
         </VStack>
       </Box>
